@@ -1,0 +1,24 @@
+site_name: astro_pi_orbit
+site_description: Miscellaneous functions for use in the Astro Pi Mission Space Lab challenge
+theme:
+  name: material
+  logo: images/rpf-logo.svg
+  favicon: images/astro-pi-logo.svg
+  features:
+    - content.code.copy
+nav:
+  - Home: index.md
+  - Recipes: recipes.md
+  - API: api.md
+
+# markdown_extensions:
+#   - pymdownx.snippets:
+#       check_paths: true
+#       base_path: [docs/recipes, "."]
+#   - pymdownx.highlight:
+#       anchor_linenums: true
+#       line_spans: __span
+#       pygments_lang_class: true
+#   - pymdownx.inlinehilite
+#   - pymdownx.superfences
+

@@ -1,0 +1,16 @@
+include LICENSE
+include README.md
+exclude mkdocs.yml
+exclude requirements.txt
+exclude requirements-dev.txt
+exclude .DS_Store
+exclude MANIFEST.in
+prune dist
+prune docs
+prune scripts
+prune test
+prune venv
+global-exclude *.egg-info
+global-exclude *.py[cod]
+global-exclude __pycache__
+

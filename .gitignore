@@ -1,0 +1,7 @@
+venv
+dist
+build
+site
+*.py[ocd]
+__pycache__
+*.egg-info
