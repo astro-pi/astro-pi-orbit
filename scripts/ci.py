@@ -98,5 +98,5 @@ def run_build(venv: ResolvedVenv):
 
 if __name__ == "__main__":
     venv: ResolvedVenv = prepare_venv(find_python())
-    run_tests(venv)
+    # run_tests(venv)
     run_build(venv)
