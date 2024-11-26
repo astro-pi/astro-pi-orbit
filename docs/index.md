@@ -1,4 +1,4 @@
-# astro_pi_orbit
+# Astro Pi Orbit
 
 The `astro_pi_orbit` library provides functionality to assist Astro Pi Mission Space Lab participants in working with orbital data. Functions are provided to do the following:
 
@@ -20,10 +20,10 @@ You can install `astro_pi_orbit` using `pip`. From Raspberry Pi OS Bookworm onwa
 To install the `astro_pi_orbit` library into a `venv` called `astro_pi_orbit-venv`, follow the steps below:
 
  1. Open a terminal window on your Raspberry Pi.
- 
+
     ![Open a terminal window](images/open-terminal.png)
 
- 2. `curl -L --fail http://rpf.io/astro_pi_orbit-install | bash`
+ 2. `curl -L --fail https://astro-pi.github.io/astro-pi-orbit/install.sh | bash`
 
 
 ## Other operating systems

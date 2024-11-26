@@ -1,4 +1,4 @@
-site_name: astro_pi_orbit
+site_name: Astro Pi Orbit
 site_description: Miscellaneous functions for use in the Astro Pi Mission Space Lab challenge
 theme:
   name: material
