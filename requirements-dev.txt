@@ -7,3 +7,4 @@ isort==5.13.2
 mypy==1.13.0
 mypy-extensions==1.0.0
 bandit==1.7.10
+pre_commit==4.0.1
