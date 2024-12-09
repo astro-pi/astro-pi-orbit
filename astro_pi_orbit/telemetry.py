@@ -4,12 +4,10 @@ from pathlib import Path
 from skyfield.api import Loader, load
 
 _tle_dir: Path = Path(os.environ.get("TLE_DIR", Path.home()))
-print("_TLE_DIR", _tle_dir)
 _tle_filename = "iss.tle"
 _tle_url = "http://celestrak.com/NORAD/elements/stations.txt"
 
 _bsp_dir = os.environ.get("BSP_DIR", Path.home())
-print("_BSP_DIR", _bsp_dir)
 _bsp_421_filename = "de421.bsp"
 _bsp_440s_filename = "de440s.bsp"
 
