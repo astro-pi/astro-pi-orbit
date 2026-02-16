@@ -8,7 +8,7 @@ This page contains a few common recipes using the functions provided by `astro_p
 from astro_pi_orbit import ISS
 
 iss = ISS()
-print(ISS.coordinates())
+print(iss.coordinates())
 ```
 ## Take a photo and embed it with the current ISS coordinates
 
