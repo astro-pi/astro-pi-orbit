@@ -11,7 +11,8 @@ authors = [
   { name="George Boukeas", email="boukeas@gmail.com" },
   { name="Geraint Ballinger", email="G3zz@users.noreply.github.com" }
 ]
-license = {file="LICENSE"}
+license = "MIT"
+license-files = ["LICENSE"]
 readme = "README.md"
 requires-python = ">=3.7"
 classifiers = [
