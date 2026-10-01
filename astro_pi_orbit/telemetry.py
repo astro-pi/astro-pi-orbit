@@ -5,7 +5,7 @@ from skyfield.api import Loader, load
 
 _tle_dir: Path = Path(os.environ.get("TLE_DIR", Path.home()))
 _tle_filename = "iss.tle"
-_tle_url = "http://celestrak.com/NORAD/elements/stations.txt"
+_tle_url = "https://celestrak.org/NORAD/elements/gp.php?GROUP=stations&FORMAT=tle"
 
 _bsp_dir = os.environ.get("BSP_DIR", Path.home())
 _bsp_421_filename = "de421.bsp"
@@ -35,8 +35,8 @@ def _load_iss():
 
     try:
         # find telemetry data remotely
-        satellites = loader.tle_file(_tle_url)
-        Path(_tle_dir / Path(_tle_url).name).rename(_tle_dir / _tle_filename)
+        loader.download(_tle_url, _tle_dir / _tle_filename)
+        satellites = loader.tle_file(_tle_filename)
     except Exception as e:
         print(e)
         pass
