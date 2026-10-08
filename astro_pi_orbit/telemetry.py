@@ -7,22 +7,22 @@ import logging
 
 from skyfield.api import Loader, load
 
-logger = logging.getLogger("astro_pi_orbit")
+PROG = "astro_pi_orbit"
+logger = logging.getLogger(PROG)
 
 CACHE_TTL = timedelta(days=3)
-DOTFILE_DIRNAME = ".astro_pi_orbit"
 FALLBACK_STATE_DIR = Path.home() / ".local" / "state"
 if sys.platform == "win32":
     STATE_DIR = Path(os.environ.get("LOCALAPPDATA") or FALLBACK_STATE_DIR)
 else:
     STATE_DIR = Path(os.environ.get("XDG_STATE_HOME") or FALLBACK_STATE_DIR)
 
-_tle_dir: Path = Path(os.environ.get("TLE_DIR") or STATE_DIR / DOTFILE_DIRNAME)
+_tle_dir: Path = Path(os.environ.get("TLE_DIR") or STATE_DIR / PROG)
 _tle_filename = "iss.tle"
 _tle_url = "https://celestrak.org/NORAD/elements/gp.php?GROUP=stations&FORMAT=tle"
 _tle_cache_filename = "cache_info.txt"
 
-_bsp_dir = Path(os.environ.get("BSP_DIR") or STATE_DIR / DOTFILE_DIRNAME)
+_bsp_dir = Path(os.environ.get("BSP_DIR") or STATE_DIR / PROG)
 _bsp_421_filename = "de421.bsp"
 _bsp_440s_filename = "de440s.bsp"
 
