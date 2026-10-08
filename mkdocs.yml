@@ -10,6 +10,7 @@ nav:
   - Home: index.md
   - Recipes: recipes.md
   - API: api.md
+  - Implementation: implementation.md
 
 markdown_extensions:
   # This configuration enables syntax highlighting on code blocks
