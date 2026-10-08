@@ -106,15 +106,14 @@ def _load_iss():
     if iss:
         return iss
 
-    iss = _load_remote_file()
-    if iss:
-        return iss
-
     if online:
+        iss = _load_remote_file()
+        if iss:
+            return iss
         # downloading failed - fallback to the local file
         iss = _load_local_file()
-    if iss:
-        return iss
+        if iss:
+            return iss
 
     raise FileNotFoundError(
         "Unable to retrieve ISS TLE data: "
