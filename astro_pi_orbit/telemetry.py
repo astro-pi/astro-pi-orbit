@@ -1,49 +1,119 @@
-import os
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
+import os
+import socket
+import sys
+import logging
 
 from skyfield.api import Loader, load
 
-_tle_dir: Path = Path(os.environ.get("TLE_DIR", Path.home()))
+logger = logging.getLogger("astro_pi_orbit")
+
+CACHE_TTL = timedelta(days=3)
+DOTFILE_DIRNAME = ".astro_pi_orbit"
+FALLBACK_STATE_DIR = Path.home() / ".local" / "state"
+if sys.platform == "win32":
+    STATE_DIR = Path(os.environ.get("LOCALAPPDATA") or FALLBACK_STATE_DIR)
+else:
+    STATE_DIR = Path(os.environ.get("XDG_STATE_HOME") or FALLBACK_STATE_DIR)
+
+_tle_dir: Path = Path(os.environ.get("TLE_DIR") or STATE_DIR / DOTFILE_DIRNAME)
 _tle_filename = "iss.tle"
 _tle_url = "https://celestrak.org/NORAD/elements/gp.php?GROUP=stations&FORMAT=tle"
+_tle_cache_filename = "cache_info.txt"
 
-_bsp_dir = os.environ.get("BSP_DIR", Path.home())
+_bsp_dir = Path(os.environ.get("BSP_DIR") or STATE_DIR / DOTFILE_DIRNAME)
 _bsp_421_filename = "de421.bsp"
 _bsp_440s_filename = "de440s.bsp"
 
 _timescale = load.timescale()
 
+def is_online(ip = "1.1.1.1", port = 443) -> bool:
+    """
+    Open a TCP socket to 1.1.1.1:443 as a proxy
+    for checking network connectivity.
+    Port 443 is used by default over DNS as it is more likely
+    to be unblocked in restricted school networks.
+    """
+    try:
+        with socket.create_connection((ip, port), timeout=2):
+            return True
+    except (socket.error, socket.timeout):
+        return False
 
 def _load_iss():
     """
     Retrieves ISS telemetry data from a local or remote TLE file and
     returns a Skyfield EarthSatellite object corresponding to the ISS.
     """
+    _tle_dir.mkdir(parents=True, exist_ok=True)
+    tle_file = _tle_dir / _tle_filename
+    cache_file = _tle_dir / _tle_cache_filename
+
+    cache_expiry_time = None
+    if cache_file.exists():
+        try:
+            cache_expiry_time = datetime.fromisoformat(
+                    cache_file.read_text().strip())
+        except (ValueError, OSError):
+            pass
+
+    is_expired = cache_expiry_time is None or datetime.now(tz=timezone.utc) >= cache_expiry_time
     loader = Loader(_tle_dir, verbose=False)
-    try:
-        # find telemetry data locally
-        satellites = loader.tle_file(_tle_filename)
-    except FileNotFoundError:
-        pass
-    else:
-        iss = next((sat for sat in satellites if sat.name == "ISS (ZARYA)"), None)
-        if iss is None:
-            raise RuntimeError(
-                f"Unable to retrieve ISS TLE data from {loader.path_to(_tle_filename)}"
+
+    def _load_local_file():
+        """
+        Load a local TLE file.
+        """
+        try:
+            # find telemetry data locally
+            satellites = loader.tle_file(_tle_filename)
+            iss = next((sat for sat in satellites if sat.name == "ISS (ZARYA)"), None)
+            if iss is None:
+                raise RuntimeError(
+                    f"Unable to find ISS (ZARYA) TLE data from {loader.path_to(_tle_filename)}. Is the file corrupted?"
+                )
+            return iss
+        except FileNotFoundError:
+            return
+
+    def _load_remote_file():
+        """Download telemetry data from Celestrak"""
+        try:
+            loader.download(_tle_url, tle_file)
+            cache_file.write_text(
+                (datetime.now(tz=timezone.utc) + CACHE_TTL).isoformat()
             )
+            satellites = loader.tle_file(_tle_filename)
+            iss = next((sat for sat in satellites if sat.name == "ISS (ZARYA)"), None)
+            if iss is None:
+                raise RuntimeError(f"Unable to retrieve ISS TLE data from {_tle_url}")
+            return iss
+
+        except Exception as e:
+            logger.warning("Failed to download remote TLE data: %s", e)
+            return
+
+    iss = None
+    online = False
+    if is_expired:
+        # check whether online only if is expired
+        online = is_online()
+
+    # load locally
+    if not is_expired or not online:
+        iss = _load_local_file()
+    if iss:
         return iss
 
-    try:
-        # find telemetry data remotely
-        loader.download(_tle_url, _tle_dir / _tle_filename)
-        satellites = loader.tle_file(_tle_filename)
-    except Exception as e:
-        print(e)
-        pass
-    else:
-        iss = next((sat for sat in satellites if sat.name == "ISS (ZARYA)"), None)
-        if iss is None:
-            raise RuntimeError(f"Unable to retrieve ISS TLE data from {_tle_url}")
+    iss = _load_remote_file()
+    if iss:
+        return iss
+
+    if online:
+        # downloading failed - fallback to the local file
+        iss = _load_local_file()
+    if iss:
         return iss
 
     raise FileNotFoundError(
